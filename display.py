@@ -20,7 +20,7 @@ HOYT_SCHER_SOUTH_STOP = "A42S"
 EASTERN_TZ = pytz.timezone('US/Eastern')
 
 
-WeatherStatus = Literal["Rain", "Clear"]
+WeatherStatus = Literal["Rain", "Clear", "Snow"]
 Weather = tuple[int, int, int, int, Optional[WeatherStatus]]  # curr_temp, feels_like, min_temp, max_temp
 
 
@@ -101,7 +101,6 @@ def render(north_arrival_deltas: list[datetime], weather: Weather):
     graphics.DrawText(canvas, font, 12, 18, green, f"{round(curr_temp)}° {round(min_temp)}-{round(max_temp)}")
     if weather_status:
         try:
-            weather_status = "snow"
             weather_image = Image.open(f'./img/{weather_status.lower()}.png')
             canvas.SetImage(weather_image.convert('RGB'), offset_x=1, offset_y=11)
         except FileNotFoundError:
