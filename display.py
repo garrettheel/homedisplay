@@ -7,9 +7,19 @@ import pytz
 import requests
 from google.transit import gtfs_realtime_pb2
 
-# TODO: swap this for `from rgbmatrix import ...` for real
-from RGBMatrixEmulator import RGBMatrix, RGBMatrixOptions, graphics
 from PIL import Image
+
+try:
+    from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
+except ImportError:
+    # Assume we're trying to emulate
+    from RGBMatrixEmulator import RGBMatrix, RGBMatrixOptions, graphics
+
+# Need to do an `Image.open` early, else PIL fails on "Cannot identify image file" :\
+A_TRAIN_IMAGE = Image.open('./img/a_train.png').convert('RGB')
+
+# Update every x seconds
+UPDATE_FREQ_SECONDS = 60
 
 ROWS = 32
 COLS = 64
@@ -27,7 +37,10 @@ Weather = tuple[int, int, int, int, Optional[WeatherStatus]]  # curr_temp, feels
 def run():
     arrival_times = subway_arrival_times()
     weather = get_weather()
-    render(arrival_times, weather)
+
+    while True:
+        render(arrival_times, weather)
+        time.sleep(UPDATE_FREQ_SECONDS)
 
 
 def subway_arrival_times() -> list[datetime]:
@@ -71,7 +84,7 @@ def render(north_arrival_deltas: list[datetime], weather: Weather):
     opts = RGBMatrixOptions()
     opts.rows = ROWS
     opts.cols = COLS
-    opts.hardware_mapping = 'regular'  # for adafruit HAT
+    opts.hardware_mapping = 'adafruit-hat'
     matrix = RGBMatrix(options=opts)
 
     canvas = matrix.CreateFrameCanvas()
@@ -108,8 +121,6 @@ def render(north_arrival_deltas: list[datetime], weather: Weather):
             print('No weather icon exists for', weather_status)
 
     matrix.SwapOnVSync(canvas)
-
-    time.sleep(300)
 
 
 def get_subway_times() -> gtfs_realtime_pb2.FeedMessage:
