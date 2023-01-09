@@ -35,11 +35,16 @@ Weather = tuple[int, int, int, int, Optional[WeatherStatus]]  # curr_temp, feels
 
 
 def run():
-    arrival_times = subway_arrival_times()
-    weather = get_weather()
+    opts = RGBMatrixOptions()
+    opts.rows = ROWS
+    opts.cols = COLS
+    opts.hardware_mapping = 'adafruit-hat'
+    matrix = RGBMatrix(options=opts)
 
     while True:
-        render(arrival_times, weather)
+        arrival_times = subway_arrival_times()
+        weather = get_weather()
+        render(matrix, arrival_times, weather)
         time.sleep(UPDATE_FREQ_SECONDS)
 
 
@@ -80,13 +85,7 @@ def subway_arrival_times() -> list[datetime]:
     return seconds_till_north_arrival
 
 
-def render(north_arrival_deltas: list[datetime], weather: Weather):
-    opts = RGBMatrixOptions()
-    opts.rows = ROWS
-    opts.cols = COLS
-    opts.hardware_mapping = 'adafruit-hat'
-    matrix = RGBMatrix(options=opts)
-
+def render(matrix: RGBMatrix, north_arrival_deltas: list[datetime], weather: Weather):
     canvas = matrix.CreateFrameCanvas()
     canvas.Clear()
 
