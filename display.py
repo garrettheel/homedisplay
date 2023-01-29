@@ -245,7 +245,7 @@ if __name__ == '__main__':
     opts = RGBMatrixOptions()
     opts.rows = ROWS
     opts.cols = COLS
-    opts.hardware_mapping = 'adafruit-hat'
+    opts.hardware_mapping = 'adafruit-hat-pwm'
     matrix = RGBMatrix(options=opts)
 
     try:
